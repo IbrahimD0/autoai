@@ -32,6 +32,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import MenuManager from '@/components/dashboard/MenuManager';
+import AIAssistant from '@/components/dashboard/AIAssistant';
 
 interface MetricCardProps {
   title: string;
@@ -234,12 +236,19 @@ const ChocolateShopDashboard: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
-          {/* Welcome Section */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Good morning, Sarah! Welcome to AutoAI</h1>
-              <p className="text-gray-600 mt-1">Here's what's happening with your chocolate shop today</p>
-            </div>
+          {/* Conditional Content Based on Active Tab */}
+          {activeTab === 'menu' && <MenuManager />}
+          {activeTab === 'ai' && <AIAssistant />}
+          
+          {/* Overview Content - Show only when overview tab is active */}
+          {activeTab === 'overview' && (
+            <>
+              {/* Welcome Section */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Good morning, Sarah! Welcome to AutoAI</h1>
+                  <p className="text-gray-600 mt-1">Here's what's happening with your chocolate shop today</p>
+                </div>
             <Card className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
               <div className="flex items-center space-x-3">
                 <Sun className="h-8 w-8 text-blue-600" />
@@ -433,6 +442,8 @@ const ChocolateShopDashboard: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+            </>
+          )}
         </div>
       </div>
     </div>
