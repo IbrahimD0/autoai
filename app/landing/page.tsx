@@ -144,10 +144,9 @@ const HeroSection = () => {
               Start Free Trial
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
               size="lg"
-              className="border-2 border-gray-900 text-gray-900 bg-white hover:bg-gray-900 hover:text-white hover:border-gray-900 px-8 py-4 text-lg rounded-xl shadow-md transition-all duration-300 font-semibold text-black"
+              className="!bg-white !text-black"
             >
               Watch Demo
             </Button>
