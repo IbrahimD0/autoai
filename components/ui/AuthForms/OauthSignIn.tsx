@@ -30,22 +30,21 @@ export default function OauthSignIn() {
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-6 space-y-3">
       {oAuthProviders.map((provider) => (
         <form
           key={provider.name}
-          className="pb-2"
           onSubmit={(e) => handleSubmit(e)}
         >
           <input type="hidden" name="provider" value={provider.name} />
           <Button
             variant="slim"
             type="submit"
-            className="w-full"
+            className="w-full flex items-center justify-center gap-3"
             loading={isSubmitting}
           >
-            <span className="mr-2">{provider.icon}</span>
-            <span>{provider.displayName}</span>
+            {provider.icon}
+            <span>Continue with {provider.displayName}</span>
           </Button>
         </form>
       ))}

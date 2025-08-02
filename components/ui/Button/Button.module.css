@@ -1,32 +1,52 @@
 .root {
-  @apply bg-white text-zinc-800 cursor-pointer inline-flex px-10 rounded-sm leading-6  transition ease-in-out duration-150 shadow-sm font-semibold text-center justify-center uppercase py-4 border border-transparent items-center;
+  @apply bg-pink-500 text-white cursor-pointer inline-flex px-6 rounded-lg leading-6 transition-all duration-200 font-medium text-center justify-center py-3 border border-transparent items-center shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40;
 }
 
 .root:hover {
-  @apply bg-zinc-800 text-white border border-white;
+  @apply bg-pink-600 transform -translate-y-0.5;
 }
 
 .root:focus {
   @apply outline-none ring-2 ring-pink-500 ring-opacity-50;
 }
 
+.root:active {
+  @apply transform translate-y-0;
+}
+
 .root[data-active] {
-  @apply bg-zinc-600;
+  @apply bg-pink-600;
 }
 
 .loading {
-  @apply bg-zinc-700 text-zinc-500 border-zinc-600 cursor-not-allowed;
+  @apply bg-zinc-700 text-zinc-500 border-zinc-600 cursor-not-allowed shadow-none;
 }
 
 .slim {
-  @apply py-2 transform-none normal-case;
+  @apply py-3 px-4 shadow-none bg-transparent border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white;
 }
 
 .disabled,
 .disabled:hover {
-  @apply text-zinc-400 border-zinc-600 bg-zinc-700 cursor-not-allowed;
+  @apply text-zinc-500 border-zinc-700 bg-zinc-800 cursor-not-allowed shadow-none transform-none;
   filter: grayscale(1);
   -webkit-transform: translateZ(0);
   -webkit-perspective: 1000;
   -webkit-backface-visibility: hidden;
+}
+
+.outline {
+  @apply bg-transparent border-2 border-current text-current;
+}
+
+.outline:hover {
+  @apply bg-white/10;
+}
+
+.small {
+  @apply py-2 px-4 text-sm;
+}
+
+.large {
+  @apply py-4 px-8 text-lg;
 }

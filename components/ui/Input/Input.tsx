@@ -1,37 +1,47 @@
-import React, { InputHTMLAttributes, ChangeEvent } from 'react';
+'use client';
+
+import React, { forwardRef, InputHTMLAttributes } from 'react';
 import cn from 'classnames';
+import styles from './Input.module.css';
 
-import s from './Input.module.css';
-
-interface Props extends Omit<InputHTMLAttributes<any>, 'onChange'> {
-  className?: string;
-  onChange: (value: string) => void;
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  helperText?: string;
 }
-const Input = (props: Props) => {
-  const { className, children, onChange, ...rest } = props;
 
-  const rootClassName = cn(s.root, {}, className);
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, helperText, className, id, ...props }, ref) => {
+    const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    
+    return (
+      <div className={styles.wrapper}>
+        {label && (
+          <label htmlFor={inputId} className={styles.label}>
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          id={inputId}
+          className={cn(
+            styles.input,
+            {
+              [styles.error]: error
+            },
+            className
+          )}
+          {...props}
+        />
+        {error && <span className={styles.errorText}>{error}</span>}
+        {helperText && !error && (
+          <span className={styles.helperText}>{helperText}</span>
+        )}
+      </div>
+    );
+  }
+);
 
-  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(e.target.value);
-    }
-    return null;
-  };
-
-  return (
-    <label>
-      <input
-        className={rootClassName}
-        onChange={handleOnChange}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-        {...rest}
-      />
-    </label>
-  );
-};
+Input.displayName = 'Input';
 
 export default Input;

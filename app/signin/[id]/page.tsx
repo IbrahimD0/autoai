@@ -55,10 +55,11 @@ export default async function SignIn({
   }
 
   return (
-    <div className="flex justify-center height-screen-helper">
-      <div className="flex flex-col justify-between max-w-lg p-3 m-auto w-80 ">
-        <div className="flex justify-center pb-12 ">
-          <Logo width="64px" height="64px" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-900 via-black to-zinc-900">
+      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+      <div className="relative flex flex-col items-center">
+        <div className="flex justify-center pb-8">
+          <Logo width="80px" height="80px" />
         </div>
         <Card
           title={

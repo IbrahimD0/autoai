@@ -1,6 +1,7 @@
 'use client';
 
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import React from 'react';
 import Link from 'next/link';
 import { signUp } from '@/utils/auth-helpers/server';
@@ -28,55 +29,57 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     <div className="my-8">
       <form
         noValidate={true}
-        className="mb-4"
+        className="mb-6"
         onSubmit={(e) => handleSubmit(e)}
       >
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              name="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              placeholder="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-          </div>
+        <div className="space-y-4">
+          <Input
+            label="Email"
+            id="email"
+            name="email"
+            type="email"
+            placeholder="name@example.com"
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            required
+          />
+          <Input
+            label="Password"
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Create a password"
+            autoComplete="new-password"
+            required
+            helperText="Must be at least 6 characters"
+          />
           <Button
-            variant="slim"
             type="submit"
-            className="mt-1"
+            className="w-full mt-6"
             loading={isSubmitting}
           >
-            Sign up
+            Create account
           </Button>
         </div>
       </form>
-      <p>Already have an account?</p>
-      <p>
-        <Link href="/signin/password_signin" className="font-light text-sm">
-          Sign in with email and password
-        </Link>
-      </p>
-      {allowEmail && (
-        <p>
-          <Link href="/signin/email_signin" className="font-light text-sm">
-            Sign in via magic link
-          </Link>
-        </p>
-      )}
+      <div className="space-y-3 text-center">
+        <div className="pt-4 border-t border-zinc-800">
+          <p className="text-sm text-zinc-500">
+            Already have an account?{' '}
+            <Link href="/signin/password_signin" className="text-pink-500 hover:text-pink-400 font-medium transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
+        {allowEmail && (
+          <p>
+            <Link href="/signin/email_signin" className="text-sm text-zinc-400 hover:text-pink-500 transition-colors">
+              Sign in via magic link
+            </Link>
+          </p>
+        )}
+      </div>
     </div>
   );
 }

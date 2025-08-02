@@ -1,6 +1,7 @@
 'use client';
 
 import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import Link from 'next/link';
 import { signInWithPassword } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
@@ -30,59 +31,61 @@ export default function PasswordSignIn({
     <div className="my-8">
       <form
         noValidate={true}
-        className="mb-4"
+        className="mb-6"
         onSubmit={(e) => handleSubmit(e)}
       >
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              name="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              placeholder="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-          </div>
+        <div className="space-y-4">
+          <Input
+            label="Email"
+            id="email"
+            name="email"
+            type="email"
+            placeholder="name@example.com"
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            required
+          />
+          <Input
+            label="Password"
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+          />
           <Button
-            variant="slim"
             type="submit"
-            className="mt-1"
+            className="w-full mt-6"
             loading={isSubmitting}
           >
             Sign in
           </Button>
         </div>
       </form>
-      <p>
-        <Link href="/signin/forgot_password" className="font-light text-sm">
-          Forgot your password?
-        </Link>
-      </p>
-      {allowEmail && (
+      <div className="space-y-3 text-center">
         <p>
-          <Link href="/signin/email_signin" className="font-light text-sm">
-            Sign in via magic link
+          <Link href="/signin/forgot_password" className="text-sm text-zinc-400 hover:text-pink-500 transition-colors">
+            Forgot your password?
           </Link>
         </p>
-      )}
-      <p>
-        <Link href="/signin/signup" className="font-light text-sm">
-          Don't have an account? Sign up
-        </Link>
-      </p>
+        {allowEmail && (
+          <p>
+            <Link href="/signin/email_signin" className="text-sm text-zinc-400 hover:text-pink-500 transition-colors">
+              Sign in via magic link
+            </Link>
+          </p>
+        )}
+        <div className="pt-4 border-t border-zinc-800">
+          <p className="text-sm text-zinc-500">
+            Don't have an account?{' '}
+            <Link href="/signin/signup" className="text-pink-500 hover:text-pink-400 font-medium transition-colors">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
