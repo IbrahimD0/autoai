@@ -26,12 +26,12 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Progress } from '@/components/ui/Progress';
+import { Separator } from '@/components/ui/Separator';
+import { Avatar, AvatarFallback } from '@/components/ui/Avatar';
 import MenuManager from '@/components/dashboard/MenuManager';
 import AIAssistant from '@/components/dashboard/AIAssistant';
 
@@ -197,26 +197,20 @@ const ChocolateShopDashboard: React.FC = () => {
     { 
       icon: <Upload className="h-5 w-5" />, 
       label: 'Upload Menu Photos', 
-      color: 'bg-orange-500 hover:bg-orange-600',
+      color: 'bg-blue-500 hover:bg-blue-600',
       onClick: () => setActiveTab('menu')
     },
     { 
       icon: <MessageCircle className="h-5 w-5" />, 
       label: 'Test AI Chat', 
-      color: 'bg-orange-500 hover:bg-orange-600',
+      color: 'bg-green-500 hover:bg-green-600',
       onClick: () => setActiveTab('ai')
     },
     { 
       icon: <Eye className="h-5 w-5" />, 
       label: 'Preview My Website', 
-      color: 'bg-orange-500 hover:bg-orange-600',
+      color: 'bg-purple-500 hover:bg-purple-600',
       onClick: () => setActiveTab('website')
-    },
-    { 
-      icon: <QrCode className="h-5 w-5" />, 
-      label: 'Download QR Code', 
-      color: 'bg-orange-500 hover:bg-orange-600',
-      onClick: () => console.log('Download QR Code')
     },
   ];
 
@@ -269,16 +263,7 @@ const ChocolateShopDashboard: React.FC = () => {
                   <h1 className="text-3xl font-bold text-gray-900">Good morning, Sarah! Welcome to AutoAI</h1>
                   <p className="text-gray-600 mt-1">Here's what's happening with your chocolate shop today</p>
                 </div>
-            <Card className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-              <div className="flex items-center space-x-3">
-                <Sun className="h-8 w-8 text-blue-600" />
-                <div>
-                  <p className="font-semibold text-blue-900">Sunny, 72°F</p>
-                  <p className="text-sm text-blue-700">Perfect for foot traffic!</p>
-                </div>
               </div>
-            </Card>
-          </div>
 
           {/* Setup Progress */}
           <Card>
@@ -297,57 +282,7 @@ const ChocolateShopDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Daily Metrics */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Today's Metrics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <MetricCard
-                title="Today's Orders"
-                value="12"
-                change={25}
-                trend="up"
-                icon={<ShoppingBag className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Revenue"
-                value="$1,840"
-                change={15}
-                trend="up"
-                icon={<TrendingUp className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="AI Conversations"
-                value="28"
-                change={8}
-                trend="up"
-                icon={<MessageCircle className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Website Visitors"
-                value="156"
-                change={12}
-                trend="up"
-                icon={<Eye className="h-5 w-5" />}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Popular Items */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Package className="h-5 w-5 text-amber-600" />
-                  <span>Popular Items This Week</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {popularItems.map((item, index) => (
-                  <PopularItem key={index} {...item} />
-                ))}
-              </CardContent>
-            </Card>
-
             {/* Quick Actions */}
             <Card>
               <CardHeader>
@@ -367,66 +302,6 @@ const ChocolateShopDashboard: React.FC = () => {
                     <span>{action.label}</span>
                   </Button>
                 ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Chocolate Shop Features */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
-              <CardHeader>
-                <CardTitle className="text-red-700">Seasonal Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Valentine's Collection</span>
-                    <Badge className="bg-red-100 text-red-800">Active</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Easter Specials</span>
-                    <Badge variant="secondary">Scheduled</Badge>
-                  </div>
-                  <Button size="sm" className="w-full">Manage Seasonal Items</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
-              <CardHeader>
-                <CardTitle className="text-amber-700 flex items-center space-x-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Inventory Alerts</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="text-sm">
-                    <p className="font-medium text-amber-800">Low Stock Items:</p>
-                    <p className="text-amber-700">• Dark Chocolate (5 left)</p>
-                    <p className="text-amber-700">• Gift Boxes (3 left)</p>
-                  </div>
-                  <Button size="sm" className="w-full">Update Inventory</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
-              <CardHeader>
-                <CardTitle className="text-purple-700 flex items-center space-x-2">
-                  <Gift className="h-5 w-5" />
-                  <span>Custom Orders</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="text-sm">
-                    <p className="font-medium text-purple-800">Pending Requests: 3</p>
-                    <p className="text-purple-700">• Wedding favor boxes</p>
-                    <p className="text-purple-700">• Corporate gifts</p>
-                  </div>
-                  <Button size="sm" className="w-full">Review Requests</Button>
-                </div>
               </CardContent>
             </Card>
           </div>
