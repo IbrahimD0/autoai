@@ -26,12 +26,12 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Progress } from '@/components/ui/Progress';
-import { Separator } from '@/components/ui/Separator';
-import { Avatar, AvatarFallback } from '@/components/ui/Avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import MenuManager from '@/components/dashboard/MenuManager';
 import AIAssistant from '@/components/dashboard/AIAssistant';
 
