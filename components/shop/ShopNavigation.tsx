@@ -1,0 +1,78 @@
+'use client'
+
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Coffee, Menu, X } from 'lucide-react'
+
+interface BusinessInfo {
+  name: string
+  tagline: string
+  description: string
+  address: string
+  phone: string
+  email: string
+  hours: string
+  socialMedia: {
+    facebook?: string
+    instagram?: string
+    twitter?: string
+  }
+}
+
+export default function ShopNavigation({ businessInfo }: { businessInfo: BusinessInfo }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <Coffee className="w-8 h-8 text-amber-600" />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">{businessInfo.name}</span>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Home</a>
+            <a href="#menu" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Menu</a>
+            <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Contact</a>
+            {businessInfo.phone && (
+              <a href={`tel:${businessInfo.phone}`} className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full hover:from-amber-600 hover:to-orange-600 transition-colors">
+                Call Now
+              </a>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 text-gray-700 dark:text-gray-300"
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700"
+          >
+            <div className="flex flex-col gap-4">
+              <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Home</a>
+              <a href="#menu" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Menu</a>
+              <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Contact</a>
+              {businessInfo.phone && (
+                <a href={`tel:${businessInfo.phone}`} className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full hover:from-amber-600 hover:to-orange-600 transition-colors w-fit">
+                  Call Now
+                </a>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </nav>
+  )
+}

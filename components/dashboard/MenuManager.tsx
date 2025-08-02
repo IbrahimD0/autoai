@@ -5,15 +5,22 @@ import { MenuUploadClient } from '@/utils/menu-upload-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Trash2, Edit, AlertCircle } from 'lucide-react';
+import { Upload, Trash2, Edit, AlertCircle, ExternalLink } from 'lucide-react';
+import ShopSetupDialog from './ShopSetupDialog';
+import { useRouter } from 'next/navigation';
 
 export default function MenuManager() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showShopSetup, setShowShopSetup] = useState(false);
+  const [shopSlug, setShopSlug] = useState<string | null>(null);
+  const [pendingMenuItems, setPendingMenuItems] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     loadMenuItems();
+    loadShopData();
   }, []);
 
   const loadMenuItems = async () => {
@@ -25,6 +32,20 @@ export default function MenuManager() {
     setLoading(false);
   };
 
+  const loadShopData = async () => {
+    try {
+      const response = await fetch('/api/shop/data');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.shop) {
+          setShopSlug(data.shop.slug);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading shop data:', error);
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -33,10 +54,42 @@ export default function MenuManager() {
     const result = await MenuUploadClient.uploadMenu(file, false);
     setUploading(false);
 
-    if (result.success) {
-      await loadMenuItems();
+    if (result.success && result.items) {
+      setPendingMenuItems(result.items);
+      setMenuItems(result.items);
+      setShowShopSetup(true);
     } else {
       alert(`Error: ${result.error}`);
+    }
+  };
+
+  const handleShopSubmit = async (shopData: any) => {
+    try {
+      const response = await fetch('/api/shop/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shopData,
+          menuItems: pendingMenuItems
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setShopSlug(data.shop.slug);
+        setShowShopSetup(false);
+        setPendingMenuItems([]);
+        await loadMenuItems();
+        await loadShopData();
+      } else {
+        const error = await response.json();
+        alert(`Error creating shop: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating shop:', error);
+      alert('Failed to create shop. Please try again.');
     }
   };
 
@@ -153,7 +206,7 @@ export default function MenuManager() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {items.map((item, index) => (
+                  {(items as any[]).map((item: any, index: number) => (
                     <div
                       key={index}
                       className="flex items-start justify-between p-4 bg-gray-50 rounded-lg"
@@ -211,6 +264,47 @@ export default function MenuManager() {
           </CardContent>
         </Card>
       )}
+
+      {/* Shop Link */}
+      {shopSlug && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-gray-900">Your Shop is Live!</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Your shop page is available at:
+                </p>
+                <a
+                  href={`/${shopSlug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center gap-1 mt-2"
+                >
+                  {window.location.origin}/{shopSlug}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+              <Button
+                onClick={() => window.open(`/${shopSlug}`, '_blank')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600"
+              >
+                View Shop
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Shop Setup Dialog */}
+      <ShopSetupDialog
+        isOpen={showShopSetup}
+        onClose={() => {
+          setShowShopSetup(false);
+          setPendingMenuItems([]);
+        }}
+        onSubmit={handleShopSubmit}
+      />
     </div>
   );
 }
