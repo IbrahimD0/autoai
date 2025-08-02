@@ -8,7 +8,7 @@ export const maxDuration = 30; // Allow 30 seconds for AI processing
 export async function POST(req: NextRequest) {
   try {
     // Get authenticated user (still using Supabase for auth only)
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 // GET endpoint to retrieve menu items
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

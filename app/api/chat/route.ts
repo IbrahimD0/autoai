@@ -6,7 +6,7 @@ import { FileMenuStorage } from '@/utils/storage/menu-storage';
 export async function POST(req: NextRequest) {
   try {
     // Get authenticated user (still using Supabase for auth only)
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 // GET endpoint to check chat availability
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

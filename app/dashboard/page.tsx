@@ -194,10 +194,30 @@ const ChocolateShopDashboard: React.FC = () => {
   ];
 
   const quickActions = [
-    { icon: <Upload className="h-5 w-5" />, label: 'Upload Menu Photos', color: 'bg-blue-500 hover:bg-blue-600' },
-    { icon: <MessageCircle className="h-5 w-5" />, label: 'Test AI Chat', color: 'bg-green-500 hover:bg-green-600' },
-    { icon: <Eye className="h-5 w-5" />, label: 'Preview My Website', color: 'bg-purple-500 hover:bg-purple-600' },
-    { icon: <QrCode className="h-5 w-5" />, label: 'Download QR Code', color: 'bg-orange-500 hover:bg-orange-600' },
+    { 
+      icon: <Upload className="h-5 w-5" />, 
+      label: 'Upload Menu Photos', 
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: () => setActiveTab('menu')
+    },
+    { 
+      icon: <MessageCircle className="h-5 w-5" />, 
+      label: 'Test AI Chat', 
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: () => setActiveTab('ai')
+    },
+    { 
+      icon: <Eye className="h-5 w-5" />, 
+      label: 'Preview My Website', 
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: () => setActiveTab('website')
+    },
+    { 
+      icon: <QrCode className="h-5 w-5" />, 
+      label: 'Download QR Code', 
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: () => console.log('Download QR Code')
+    },
   ];
 
   return (
@@ -341,6 +361,7 @@ const ChocolateShopDashboard: React.FC = () => {
                   <Button
                     key={index}
                     className={`w-full justify-start space-x-2 text-white ${action.color}`}
+                    onClick={action.onClick}
                   >
                     {action.icon}
                     <span>{action.label}</span>
