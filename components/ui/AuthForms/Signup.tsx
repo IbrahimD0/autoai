@@ -1,6 +1,6 @@
 'use client';
 
-import Button from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import Input from '@/components/ui/Input';
 import React from 'react';
 import Link from 'next/link';
