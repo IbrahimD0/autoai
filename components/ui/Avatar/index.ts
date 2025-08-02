@@ -1,0 +1,1 @@
+export { default, AvatarFallback } from './Avatar';

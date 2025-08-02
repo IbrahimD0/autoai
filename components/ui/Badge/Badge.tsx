@@ -13,10 +13,10 @@ const Badge: React.FC<BadgeProps> = ({
   variant = 'default' 
 }) => {
   const variants = {
-    default: 'bg-zinc-900 text-white border-zinc-900',
-    secondary: 'bg-zinc-100 text-zinc-900 border-zinc-200',
+    default: 'bg-orange-500 text-white border-orange-500',
+    secondary: 'bg-gray-100 text-gray-700 border-gray-200',
     destructive: 'bg-red-500 text-white border-red-500',
-    outline: 'bg-transparent border-zinc-300 text-zinc-900'
+    outline: 'bg-transparent border-gray-300 text-gray-700'
   };
 
   return (

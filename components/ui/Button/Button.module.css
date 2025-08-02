@@ -1,13 +1,13 @@
 .root {
-  @apply bg-pink-500 text-white cursor-pointer inline-flex px-6 rounded-lg leading-6 transition-all duration-200 font-medium text-center justify-center py-3 border border-transparent items-center shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40;
+  @apply bg-orange-500 text-white cursor-pointer inline-flex px-6 rounded-lg leading-6 transition-all duration-200 font-medium text-center justify-center py-3 border border-transparent items-center shadow-md hover:shadow-lg;
 }
 
 .root:hover {
-  @apply bg-pink-600 transform -translate-y-0.5;
+  @apply bg-orange-600 transform -translate-y-0.5;
 }
 
 .root:focus {
-  @apply outline-none ring-2 ring-pink-500 ring-opacity-50;
+  @apply outline-none ring-2 ring-orange-500 ring-opacity-50;
 }
 
 .root:active {
@@ -15,20 +15,20 @@
 }
 
 .root[data-active] {
-  @apply bg-pink-600;
+  @apply bg-orange-600;
 }
 
 .loading {
-  @apply bg-zinc-700 text-zinc-500 border-zinc-600 cursor-not-allowed shadow-none;
+  @apply bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed shadow-none;
 }
 
 .slim {
-  @apply py-3 px-4 shadow-none bg-transparent border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 hover:text-white;
+  @apply py-3 px-4 shadow-none bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900;
 }
 
 .disabled,
 .disabled:hover {
-  @apply text-zinc-500 border-zinc-700 bg-zinc-800 cursor-not-allowed shadow-none transform-none;
+  @apply text-gray-400 border-gray-300 bg-gray-200 cursor-not-allowed shadow-none transform-none;
   filter: grayscale(1);
   -webkit-transform: translateZ(0);
   -webkit-perspective: 1000;
@@ -49,4 +49,12 @@
 
 .large {
   @apply py-4 px-8 text-lg;
+}
+
+.ghost {
+  @apply bg-transparent border-transparent text-current shadow-none hover:bg-gray-100;
+}
+
+.ghost:hover {
+  @apply bg-gray-100;
 }

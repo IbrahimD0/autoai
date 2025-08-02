@@ -1,7 +1,25 @@
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
+import { createClient } from '@/utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  // Protected routes
+  const protectedPaths = ['/dashboard', '/account'];
+  const isProtectedPath = protectedPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (isProtectedPath) {
+    const { supabase, response } = createClient(request);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      // Redirect to signin if user is not authenticated
+      const redirectUrl = new URL('/signin', request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
   return await updateSession(request);
 }
 

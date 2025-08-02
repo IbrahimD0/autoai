@@ -40,3 +40,23 @@ yarn-error.log*
 # certificates
 certificates
 .env*.local
+
+# MCP configuration (contains sensitive data)
+claude_project.json
+claude_project.json.example
+
+# supabase
+supabase/migrations/20240102_autoai_schema.sql
+supabase/migrations/20240102_autoai_schema.sql.example
+
+# supabase/seed
+supabase/seed/data.sql
+supabase/seed/data.sql.example
+
+
+DATABASE_SETUP.md
+
+SUPABASE_MCP_SETUP.md
+
+
+

@@ -78,6 +78,18 @@ const HeroSection = () => {
     <section className="relative min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 overflow-hidden">
       <ChocolateParticles />
       
+      {/* Sign In Button */}
+      <div className="absolute top-6 right-6 z-20">
+        <a href="/signin">
+          <Button 
+            variant="outline"
+            className="border-2 border-orange-400 text-orange-700 bg-white hover:bg-orange-50 px-6 py-2"
+          >
+            Sign In
+          </Button>
+        </a>
+      </div>
+      
       {/* Background decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-32 h-32 bg-orange-200/30 rounded-full blur-xl" />
@@ -137,14 +149,17 @@ const HeroSection = () => {
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
+            <a href="/signin/signup">
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                Start Free Trial
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </a>
             <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            >
-              Start Free Trial
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button
+              variant="outline" 
               size="lg"
               className="!bg-white !text-black"
             >
