@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { DbMenuItem } from '@/utils/supabase/menu-queries';
+import { MenuItem } from '@/types/shop';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY,
@@ -31,7 +31,7 @@ export interface OrderDetails {
 export function generateSystemPrompt(
   shopName: string,
   shopAddress: string,
-  menuItems: DbMenuItem[],
+  menuItems: MenuItem[],
   businessHours?: any,
   aiPersonality?: string
 ): string {
@@ -40,7 +40,7 @@ export function generateSystemPrompt(
     if (!acc[item.category]) acc[item.category] = [];
     acc[item.category].push(item);
     return acc;
-  }, {} as Record<string, DbMenuItem[]>);
+  }, {} as Record<string, MenuItem[]>);
 
   // Format menu for the prompt
   let menuText = 'CURRENT MENU:\n\n';
@@ -102,7 +102,7 @@ export async function processChat(
   messages: ChatMessage[],
   shopName: string,
   shopAddress: string,
-  menuItems: DbMenuItem[]
+  menuItems: MenuItem[]
 ): Promise<{
   response: string;
   orderDetails?: OrderDetails;

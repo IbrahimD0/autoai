@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { MenuUploadClient } from '@/utils/menu-upload-client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { Upload, Trash2, Edit, AlertCircle, ExternalLink } from 'lucide-react';
 import ShopSetupDialog from './ShopSetupDialog';
 import { useRouter } from 'next/navigation';

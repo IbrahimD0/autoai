@@ -8,7 +8,7 @@ import {
   getDefaultSignInView,
   getRedirectMethod
 } from '@/utils/auth-helpers/settings';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui/Card';
 import PasswordSignIn from '@/components/ui/AuthForms/PasswordSignIn';
 import EmailSignIn from '@/components/ui/AuthForms/EmailSignIn';
 import Separator from '@/components/ui/AuthForms/Separator';
@@ -22,7 +22,7 @@ export default async function SignIn({
   searchParams
 }: {
   params: Promise<{ id: string }>;
-  searchParams: { disable_button: boolean };
+  searchParams: Promise<{ disable_button?: boolean }>;
 }) {
   const { allowOauth, allowEmail, allowPassword } = getAuthTypes();
   const viewTypes = getViewTypes();
@@ -33,6 +33,7 @@ export default async function SignIn({
 
   // Await params since it's a Promise in Next.js 15
   const { id } = await params;
+  const { disable_button } = await searchParams;
 
   // Assign url id to 'viewProp' if it's a valid string and ViewTypes includes it
   if (typeof id === 'string' && viewTypes.includes(id)) {
@@ -86,14 +87,14 @@ export default async function SignIn({
             <EmailSignIn
               allowPassword={allowPassword}
               redirectMethod={redirectMethod}
-              disableButton={searchParams.disable_button}
+              disableButton={disable_button}
             />
           )}
           {viewProp === 'forgot_password' && (
             <ForgotPassword
               allowEmail={allowEmail}
               redirectMethod={redirectMethod}
-              disableButton={searchParams.disable_button}
+              disableButton={disable_button}
             />
           )}
           {viewProp === 'update_password' && (

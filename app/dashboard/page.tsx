@@ -27,12 +27,12 @@ import {
   ChevronRight,
   Loader2
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Progress } from '@/components/ui/Progress';
+import { Separator } from '@/components/ui/Separator';
+import { Avatar, AvatarFallback } from '@/components/ui/Avatar';
 import MenuManager from '@/components/dashboard/MenuManager';
 import AIAssistant from '@/components/dashboard/AIAssistant';
 import { createClient } from '@/utils/supabase/client';
@@ -184,7 +184,7 @@ const ChocolateShopDashboard: React.FC = () => {
         // Check if user has a shop
         const { data: shop } = await supabase
           .from('shops')
-          .select('slug')
+          .select('id, slug')
           .eq('user_id', user.id)
           .single();
         
@@ -197,7 +197,7 @@ const ChocolateShopDashboard: React.FC = () => {
             .eq('shop_id', shop.id)
             .limit(1);
           
-          hasMenu = menuItems && menuItems.length > 0;
+          hasMenu = !!(menuItems && menuItems.length > 0);
         }
         
         // Calculate completed steps

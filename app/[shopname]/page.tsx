@@ -50,8 +50,9 @@ async function getShopData(slug: string) {
   return { shop, menuCategories }
 }
 
-export async function generateMetadata({ params }: { params: { shopname: string } }) {
-  const shopData = await getShopData(params.shopname)
+export async function generateMetadata({ params }: { params: Promise<{ shopname: string }> }) {
+  const { shopname } = await params
+  const shopData = await getShopData(shopname)
   
   if (!shopData) {
     return {
@@ -71,8 +72,9 @@ export async function generateMetadata({ params }: { params: { shopname: string 
   }
 }
 
-export default async function ShopPage({ params }: { params: { shopname: string } }) {
-  const shopData = await getShopData(params.shopname)
+export default async function ShopPage({ params }: { params: Promise<{ shopname: string }> }) {
+  const { shopname } = await params
+  const shopData = await getShopData(shopname)
   
   if (!shopData) {
     notFound()

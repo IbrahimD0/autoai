@@ -1,1 +1,1 @@
-export { default, AvatarFallback } from './Avatar';
+export { default as Avatar, AvatarFallback } from './Avatar';

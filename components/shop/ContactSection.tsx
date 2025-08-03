@@ -113,7 +113,7 @@ export default function ContactSection({ businessInfo }: { businessInfo: Busines
             )}
           </motion.div>
 
-          {/* Map placeholder */}
+          {/* Google Maps Embed */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -121,13 +121,31 @@ export default function ContactSection({ businessInfo }: { businessInfo: Busines
             viewport={{ once: true }}
             className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
           >
-            <div className="w-full h-96 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-gray-700 dark:to-gray-600 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Interactive Map</h3>
-                <p className="text-gray-600 dark:text-gray-400">Click to view directions</p>
+            {businessInfo.address && process.env.NEXT_PUBLIC_GOOGLE_MAP_API ? (
+              <div className="w-full h-96 rounded-lg overflow-hidden">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API}&q=${encodeURIComponent(businessInfo.address)}`}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="w-full h-96 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-gray-700 dark:to-gray-600 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="w-12 h-12 text-amber-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Map View</h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {!process.env.NEXT_PUBLIC_GOOGLE_MAP_API 
+                      ? 'Google Maps API key not configured' 
+                      : 'Address not available'}
+                  </p>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
