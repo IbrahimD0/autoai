@@ -53,7 +53,7 @@ function Chatbot({
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
-      content: `Hi! Welcome to ${businessInfo.name}. I can help you with our menu, hours, location, and more. What would you like to know?`,
+      content: `Hi! Welcome to ${businessInfo.name}. I can help you with:\n\n• Our menu (${menuItems.reduce((sum, cat) => sum + cat.items.length, 0)} items)\n• Business hours\n• Location & contact info\n• Recommendations\n\nWhat would you like to know?`,
       sender: "bot",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     }
@@ -75,7 +75,19 @@ function Chatbot({
     // Menu inquiries
     if (message.includes("menu") || message.includes("food") || message.includes("drink")) {
       const categories = menuItems.map(cat => cat.category).join(", ")
-      return `We have the following categories: ${categories}. What specific items would you like to know about?`
+      const totalItems = menuItems.reduce((sum, cat) => sum + cat.items.length, 0)
+      
+      // Provide more detailed menu information
+      let response = `We have ${totalItems} items across these categories: ${categories}.\n\n`
+      
+      // Show a few items from each category
+      menuItems.forEach(category => {
+        const itemNames = category.items.slice(0, 3).map(item => `${item.name} (${item.price})`).join(", ")
+        response += `${category.category.toUpperCase()}: ${itemNames}${category.items.length > 3 ? ', and more...' : ''}\n`
+      })
+      
+      response += "\nYou can ask about specific categories (appetizers, main courses, specials) or items by name!"
+      return response
     }
     
     // Hours inquiry
@@ -105,20 +117,68 @@ function Chatbot({
     // Price inquiries
     if (message.includes("price") || message.includes("cost") || message.includes("$")) {
       const allItems = menuItems.flatMap(cat => cat.items)
-      const prices = allItems.map(item => item.price).filter(Boolean)
+      const prices = allItems.map(item => parseFloat(item.price.replace('$', ''))).filter(p => !isNaN(p))
       if (prices.length > 0) {
-        return `Our items range from ${Math.min(...prices.map(p => parseFloat(p.replace('$', ''))))} to ${Math.max(...prices.map(p => parseFloat(p.replace('$', ''))))}. What specific item would you like to know about?`
+        const minPrice = Math.min(...prices)
+        const maxPrice = Math.max(...prices)
+        return `Our items range from $${minPrice.toFixed(2)} to $${maxPrice.toFixed(2)}. What specific item would you like to know about?`
       }
       return "Please check our menu section for current pricing."
     }
     
+    // Category-specific inquiries
+    if (message.includes("appetizer") || message.includes("starter")) {
+      const appetizers = menuItems.find(cat => cat.category.toLowerCase().includes("appetizer"))
+      if (appetizers) {
+        const items = appetizers.items.map(item => `${item.name} (${item.price})`).join(", ")
+        return `Our appetizers include: ${items}. Which one interests you?`
+      }
+    }
+    
+    if (message.includes("main") || message.includes("entree")) {
+      const mains = menuItems.find(cat => cat.category.toLowerCase().includes("main"))
+      if (mains) {
+        const items = mains.items.map(item => `${item.name} (${item.price})`).join(", ")
+        return `Our main courses include: ${items}. Would you like details about any of these?`
+      }
+    }
+    
+    if (message.includes("special")) {
+      const specials = menuItems.find(cat => cat.category.toLowerCase().includes("special"))
+      if (specials) {
+        const items = specials.items.map(item => `${item.name} (${item.price})`).join(", ")
+        return `Today's specials are: ${items}. What would you like to know more about?`
+      }
+    }
+    
+    // Specific item search
+    const allItems = menuItems.flatMap(cat => cat.items)
+    const foundItem = allItems.find(item => {
+      const itemWords = item.name.toLowerCase().split(' ')
+      return itemWords.some(word => message.includes(word) && word.length > 3) || 
+             message.includes(item.name.toLowerCase())
+    })
+    
+    if (foundItem) {
+      let response = `${foundItem.name} - ${foundItem.price}`
+      if (foundItem.description) {
+        response += `\n\n${foundItem.description}`
+      }
+      return response
+    }
+    
     // Recommendations
     if (message.includes("recommend") || message.includes("popular") || message.includes("best")) {
-      const allItems = menuItems.flatMap(cat => cat.items)
-      const recommendations = allItems.slice(0, 3).map(item => item.name).join(", ")
-      return recommendations 
-        ? `Some of our popular items include: ${recommendations}. Would you like to know more about any of these?`
-        : "Check out our menu section for all our offerings!"
+      const recommendations = allItems.slice(0, 3)
+      let response = "I recommend trying:\n\n"
+      recommendations.forEach(item => {
+        response += `• ${item.name} (${item.price})`
+        if (item.description) {
+          response += ` - ${item.description.substring(0, 50)}...`
+        }
+        response += "\n"
+      })
+      return response
     }
     
     // Default response
@@ -196,7 +256,7 @@ function Chatbot({
                   : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               )}
             >
-              <p>{message.content}</p>
+              <p className="whitespace-pre-wrap">{message.content}</p>
               <p className={cn(
                 "text-xs mt-1",
                 message.sender === "user" ? "text-white/70" : "text-gray-500"
