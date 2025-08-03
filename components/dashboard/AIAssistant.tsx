@@ -90,13 +90,13 @@ export default function AIAssistant() {
                 recommendations, and order placement.
               </p>
               <div className="flex gap-4 text-sm">
-                <div className="flex items-center gap-2">
+                <div className="!text-black flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <span>Online</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-500">Response time:</span>
-                  <span className="font-medium">~2 seconds</span>
+                  <span className="!text-black font-medium">~2 seconds</span>
                 </div>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function AIAssistant() {
                   onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
                   placeholder="Test a customer question..."
                   disabled={chatLoading}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                  className="!text-black flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent"
                 />
                 <Button
                   onClick={sendChatMessage}
@@ -197,7 +197,7 @@ export default function AIAssistant() {
                       variant="outline"
                       size="sm"
                       onClick={() => setChatInput(question)}
-                      className="text-xs"
+                      className="!text-black"
                     >
                       {question}
                     </Button>
@@ -219,7 +219,7 @@ export default function AIAssistant() {
             <div>
               <label className="text-sm font-medium text-gray-700">Response Style</label>
               <p className="text-sm text-gray-500 mb-2">How should your AI assistant communicate?</p>
-              <select className="w-full p-2 border border-gray-300 rounded-lg">
+              <select className="!text-black w-full p-2 border border-gray-300 rounded-lg">
                 <option>Friendly & Helpful</option>
                 <option>Professional</option>
                 <option>Casual & Fun</option>
@@ -229,7 +229,7 @@ export default function AIAssistant() {
               <label className="text-sm font-medium text-gray-700">Special Instructions</label>
               <p className="text-sm text-gray-500 mb-2">Any specific guidelines for your AI?</p>
               <textarea
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg !text-black"
                 rows={3}
                 placeholder="E.g., Always mention our daily specials, emphasize organic ingredients..."
               />
