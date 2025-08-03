@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { extractMenuFromImage } from '@/utils/ai/menu-extraction';
 
-export const maxDuration = 30; // Allow 30 seconds for AI processing
+export const maxDuration = 60; // Allow 60 seconds for AI processing
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,8 +58,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Log the start of extraction
+    console.log('Starting menu extraction...');
+    const startTime = Date.now();
+    
     // Extract menu items using AI
     const extractedItems = await extractMenuFromImage(imageBase64);
+    
+    // Log extraction time
+    const extractionTime = Date.now() - startTime;
+    console.log(`Menu extraction completed in ${extractionTime}ms`);
 
     // If no shop exists, return extracted items without saving
     if (!shop) {

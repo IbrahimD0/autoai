@@ -50,65 +50,42 @@ const categoryKeywords: Record<ChocolateCategory, string[]> = {
 export async function extractMenuFromImage(imageBase64: string): Promise<MenuItem[]> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Updated model - gpt-4-vision-preview is deprecated
+      model: "gpt-4o-mini", // Use the faster mini model for menu extraction
       messages: [
         {
           role: "system",
-          content: `You are an expert at analyzing restaurant and food menus. Extract ALL menu items from the image and return them in a structured JSON format.`
+          content: `Extract menu items from the image. Return ONLY a JSON array.`
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Analyze this menu image THOROUGHLY and extract EVERY SINGLE food item listed.
+              text: `Extract ALL menu items from this image.
               
-              Instructions:
-              1. Look at ALL sections of the menu (appetizers, specials, main courses, etc.)
-              2. Extract EVERY item you can see, including duplicates
-              3. If the menu has multiple columns or sections, extract from ALL of them
-              4. Do not skip any items - I need the COMPLETE menu
-              
-              For each item, extract:
-              - name (exactly as written on the menu)
-              - price (convert to number, e.g., $10 becomes 10)
-              - description (if available, otherwise null)
-              - category (the section it belongs to, e.g., "appetizer", "special menu", "main course")
-              - size/portion (if mentioned, otherwise null)
-              - allergen information (if mentioned, otherwise empty array)
-              
-              The menu appears to have sections like:
-              - Appetizer section
-              - Special Menu section  
-              - Main Course section
-              - And possibly more
-              
-              Make sure to extract items from EVERY section you can see.
-              
-              Return the data as a JSON array of objects with these fields:
+              For each item return:
               {
-                "name": "string",
+                "name": "item name",
                 "price": number,
-                "description": "string or null",
-                "category": "string (section name)",
-                "size": "string or null",
+                "description": "description or null",
+                "category": "section name",
+                "size": "size or null",
                 "allergens": []
               }
               
-              Important: This menu has MANY items (at least 15-20). Make sure you extract ALL of them.
-              
-              Return ONLY the JSON array, no other text or markdown formatting.`
+              Return ONLY the JSON array, no other text.`
             },
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${imageBase64}`
+                url: `data:image/jpeg;base64,${imageBase64}`,
+                detail: "low" // Use low detail for faster processing
               }
             }
           ]
         }
       ],
-      max_tokens: 4000,
+      max_tokens: 2000,
       temperature: 0.1
     });
 

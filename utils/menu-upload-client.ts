@@ -1,6 +1,8 @@
 // Client-side utility for menu upload
 // This can be easily integrated into any UI component
 
+import { optimizeImageForUpload, isValidImageFile, getFileSize } from './image-optimization';
+
 interface MenuUploadResult {
   success: boolean;
   message?: string;
@@ -11,7 +13,7 @@ interface MenuUploadResult {
 }
 
 export class MenuUploadClient {
-  // Convert File to base64
+  // Convert File to base64 (deprecated - use optimizeImageForUpload instead)
   static async fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -33,23 +35,22 @@ export class MenuUploadClient {
   ): Promise<MenuUploadResult> {
     try {
       // Validate file type
-      if (!imageFile.type.startsWith('image/')) {
+      if (!isValidImageFile(imageFile)) {
         return {
           success: false,
-          error: 'Please upload an image file'
+          error: 'Please upload a valid image file (JPEG, PNG, or WebP)'
         };
       }
 
-      // Validate file size (max 10MB)
-      if (imageFile.size > 10 * 1024 * 1024) {
-        return {
-          success: false,
-          error: 'Image size must be less than 10MB'
-        };
-      }
+      // Log original file size
+      console.log(`Original image size: ${getFileSize(imageFile.size)}`);
 
-      // Convert to base64
-      const imageBase64 = await this.fileToBase64(imageFile);
+      // Optimize image before upload
+      const imageBase64 = await optimizeImageForUpload(imageFile);
+      
+      // Log optimized size (approximate)
+      const optimizedSize = imageBase64.length * 0.75; // Base64 is ~33% larger
+      console.log(`Optimized image size: ${getFileSize(optimizedSize)}`);
 
       // Send to API
       const response = await fetch('/api/menu/extract', {
