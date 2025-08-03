@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { processChat, ChatMessage } from '@/utils/ai/chocolate-assistant';
-import { FileMenuStorage } from '@/utils/storage/menu-storage';
 
 export async function POST(req: NextRequest) {
   try {
-    // Get authenticated user (still using Supabase for auth only)
+    // Get authenticated user
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -16,10 +15,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get menu items from file storage
-    const menuItems = FileMenuStorage.getMenuItems(user.id);
+    // Get user's shop
+    const { data: shop, error: shopError } = await supabase
+      .from('shops')
+      .select('id, name, address')
+      .eq('user_id', user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return NextResponse.json(
+        { error: 'You must create a shop first' },
+        { status: 400 }
+      );
+    }
+
+    // Get menu items from database
+    const { data: menuItems, error: menuError } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('shop_id', shop.id)
+      .eq('available', true);
+
+    if (menuError) {
+      console.error('Error fetching menu items:', menuError);
+      throw new Error('Failed to fetch menu items');
+    }
     
-    if (menuItems.length === 0) {
+    if (!menuItems || menuItems.length === 0) {
       return NextResponse.json(
         { error: 'No menu items found. Please upload a menu first.' },
         { status: 400 }
@@ -37,34 +59,21 @@ export async function POST(req: NextRequest) {
     }
 
     // Process chat with AI
-    const shopName = user.email?.split('@')[0] || 'My Shop';
-    const shopAddress = 'your location'; // Default for MVP
+    const shopName = shop.name || user.email?.split('@')[0] || 'My Shop';
+    const shopAddress = shop.address || 'your location';
     
     const { response, orderDetails } = await processChat(
       messages,
       shopName,
       shopAddress,
-      menuItems as any // Cast to match expected type
+      menuItems
     );
 
-    // If order was extracted, just return it (no database save for now)
-    if (orderDetails && orderDetails.customerName && orderDetails.customerPhone) {
-      // Calculate total if not provided
-      if (!orderDetails.totalAmount) {
-        orderDetails.totalAmount = orderDetails.items.reduce(
-          (sum, item) => sum + (item.price * item.quantity),
-          0
-        );
-      }
-
-      return NextResponse.json({
-        response,
-        orderDetails,
-        message: 'Order details extracted successfully!'
-      });
-    }
-
-    return NextResponse.json({ response });
+    // Return the response
+    return NextResponse.json({
+      response,
+      orderDetails
+    });
 
   } catch (error) {
     console.error('Chat error:', error);
@@ -85,28 +94,32 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { available: false, reason: 'Not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ available: false });
     }
 
-    const shopName = user.email?.split('@')[0] || 'My Shop';
-    const hasMenuItems = FileMenuStorage.hasMenuItems(user.id);
-    const menuItemCount = FileMenuStorage.getMenuItems(user.id).length;
-    
-    return NextResponse.json({
-      available: hasMenuItems,
-      shopName: shopName,
-      menuItemCount: menuItemCount,
-      reason: !hasMenuItems ? 'No menu items uploaded' : null
+    // Check if user has a shop with menu items
+    const { data: shop } = await supabase
+      .from('shops')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!shop) {
+      return NextResponse.json({ available: false });
+    }
+
+    const { count } = await supabase
+      .from('menu_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('shop_id', shop.id);
+
+    return NextResponse.json({ 
+      available: (count || 0) > 0,
+      itemCount: count || 0
     });
 
   } catch (error) {
-    console.error('Chat availability check error:', error);
-    return NextResponse.json(
-      { available: false, reason: 'System error' },
-      { status: 500 }
-    );
+    console.error('Error checking chat availability:', error);
+    return NextResponse.json({ available: false });
   }
 }

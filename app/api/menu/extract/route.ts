@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { extractMenuFromImage } from '@/utils/ai/menu-extraction';
-import { FileMenuStorage } from '@/utils/storage/menu-storage';
 
 export const maxDuration = 30; // Allow 30 seconds for AI processing
 
 export async function POST(req: NextRequest) {
   try {
-    // Get authenticated user (still using Supabase for auth only)
+    // Get authenticated user
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -18,13 +17,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if user has a shop
+    const { data: shop, error: shopError } = await supabase
+      .from('shops')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return NextResponse.json(
+        { error: 'You must create a shop first' },
+        { status: 400 }
+      );
+    }
+
     // Parse request body
     const body = await req.json();
     const { imageBase64, clearExisting = false } = body;
 
     // Optional: Clear existing menu items before upload
     if (clearExisting) {
-      FileMenuStorage.clearMenuItems(user.id);
+      const { error: deleteError } = await supabase
+        .from('menu_items')
+        .delete()
+        .eq('shop_id', shop.id);
+
+      if (deleteError) {
+        console.error('Error clearing menu items:', deleteError);
+      }
       
       // If only clearing without new upload
       if (!imageBase64 || imageBase64 === '') {
@@ -32,7 +52,7 @@ export async function POST(req: NextRequest) {
           success: true,
           message: 'Menu cleared successfully',
           items: [],
-          shopId: user.id
+          shopId: shop.id
         });
       }
     }
@@ -48,14 +68,36 @@ export async function POST(req: NextRequest) {
     // Extract menu items using AI
     const extractedItems = await extractMenuFromImage(imageBase64);
 
-    // Save to file storage (no database needed!)
-    FileMenuStorage.saveMenuItems(user.id, extractedItems);
+    // Prepare items for database insertion
+    const itemsToInsert = extractedItems.map(item => ({
+      shop_id: shop.id,
+      name: item.name,
+      price: item.price,
+      description: item.description,
+      category: item.category,
+      size: item.size,
+      allergens: item.allergens,
+      available: item.available ?? true,
+      seasonal: item.seasonal ?? false,
+      sort_order: 0
+    }));
+
+    // Insert items into database
+    const { data: insertedItems, error: insertError } = await supabase
+      .from('menu_items')
+      .insert(itemsToInsert)
+      .select();
+
+    if (insertError) {
+      console.error('Error inserting menu items:', insertError);
+      throw new Error('Failed to save menu items to database');
+    }
 
     return NextResponse.json({
       success: true,
       message: `Successfully extracted ${extractedItems.length} menu items`,
-      items: extractedItems,
-      shopId: user.id
+      items: insertedItems || extractedItems,
+      shopId: shop.id
     });
 
   } catch (error) {
@@ -83,15 +125,41 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get menu items from file storage
-    const items = FileMenuStorage.getMenuItems(user.id);
-    const shopName = user.email?.split('@')[0] || 'My Shop';
+    // Get user's shop
+    const { data: shop, error: shopError } = await supabase
+      .from('shops')
+      .select('id, name')
+      .eq('user_id', user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return NextResponse.json({
+        success: true,
+        items: [],
+        shopId: null,
+        shopName: 'My Shop'
+      });
+    }
+
+    // Get menu items from database
+    const { data: items, error: itemsError } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('shop_id', shop.id)
+      .order('category', { ascending: true })
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true });
+
+    if (itemsError) {
+      console.error('Error fetching menu items:', itemsError);
+      throw new Error('Failed to fetch menu items');
+    }
 
     return NextResponse.json({
       success: true,
-      items: items,
-      shopId: user.id,
-      shopName: shopName
+      items: items || [],
+      shopId: shop.id,
+      shopName: shop.name
     });
 
   } catch (error) {

@@ -175,13 +175,7 @@ const ChocolateShopDashboard: React.FC = () => {
       
       if (user) {
         // Get user profile
-        const { data: profile } = await supabase
-          .from('users')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
-        
-        // Check if user has a shop
+        // Check if user has a shop (no users table to query)
         const { data: shop } = await supabase
           .from('shops')
           .select('id, slug')
@@ -207,7 +201,7 @@ const ChocolateShopDashboard: React.FC = () => {
         
         setDashboardData({
           user,
-          userName: profile?.full_name || user.email?.split('@')[0] || 'there',
+          userName: user.email?.split('@')[0] || 'there',
           hasShop: !!shop,
           hasMenu,
           shopSlug: shop?.slug,
