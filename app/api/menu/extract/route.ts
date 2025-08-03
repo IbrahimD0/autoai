@@ -17,26 +17,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user has a shop
+    // Parse request body
+    const body = await req.json();
+    const { imageBase64, clearExisting = false } = body;
+
+    // Check if user has a shop (but don't fail if they don't)
     const { data: shop, error: shopError } = await supabase
       .from('shops')
       .select('id')
       .eq('user_id', user.id)
       .single();
 
-    if (shopError || !shop) {
-      return NextResponse.json(
-        { error: 'You must create a shop first' },
-        { status: 400 }
-      );
-    }
-
-    // Parse request body
-    const body = await req.json();
-    const { imageBase64, clearExisting = false } = body;
-
     // Optional: Clear existing menu items before upload
-    if (clearExisting) {
+    if (clearExisting && shop) {
       const { error: deleteError } = await supabase
         .from('menu_items')
         .delete()
@@ -67,6 +60,17 @@ export async function POST(req: NextRequest) {
 
     // Extract menu items using AI
     const extractedItems = await extractMenuFromImage(imageBase64);
+
+    // If no shop exists, return extracted items without saving
+    if (!shop) {
+      return NextResponse.json({
+        success: true,
+        message: `Successfully extracted ${extractedItems.length} menu items`,
+        items: extractedItems,
+        shopId: null,
+        requiresShopSetup: true
+      });
+    }
 
     // Prepare items for database insertion
     const itemsToInsert = extractedItems.map(item => ({

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       .from('shops')
       .select('*')
       .eq('user_id', user.id)
-      .maybeSingle();
+      .single();
 
     let shop: Shop;
 

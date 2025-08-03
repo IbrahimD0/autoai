@@ -25,8 +25,7 @@ import {
   TrendingDown,
   ChevronLeft,
   ChevronRight,
-  Loader2,
-  Building2
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -36,7 +35,6 @@ import { Separator } from '@/components/ui/Separator';
 import { Avatar, AvatarFallback } from '@/components/ui/Avatar';
 import MenuManager from '@/components/dashboard/MenuManager';
 import AIAssistant from '@/components/dashboard/AIAssistant';
-import ShopSetupDialog from '@/components/dashboard/ShopSetupDialog';
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -156,7 +154,6 @@ const ChocolateShopDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showShopSetup, setShowShopSetup] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     user: null,
     userName: '',
@@ -179,11 +176,12 @@ const ChocolateShopDashboard: React.FC = () => {
       if (user) {
         // Get user profile
         // Check if user has a shop (no users table to query)
-        const { data: shop, error: shopError } = await supabase
+        const { data: shops } = await supabase
           .from('shops')
           .select('id, slug')
-          .eq('user_id', user.id)
-          .maybeSingle(); // Use maybeSingle() instead of single() to handle no rows gracefully
+          .eq('user_id', user.id);
+        
+        const shop = shops && shops.length > 0 ? shops[0] : null;
         
         // Check if user has menu items
         let hasMenu = false;
@@ -223,35 +221,6 @@ const ChocolateShopDashboard: React.FC = () => {
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
-  };
-
-  const handleShopSubmit = async (shopData: any) => {
-    try {
-      const response = await fetch('/api/shop/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          shopData,
-          menuItems: [] // No menu items yet when creating shop from dashboard
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setShowShopSetup(false);
-        await loadDashboardData(); // Reload dashboard data to reflect the new shop
-        // Navigate to menu tab to upload menu
-        setActiveTab('menu');
-      } else {
-        const error = await response.json();
-        alert(`Error creating shop: ${error.error}`);
-      }
-    } catch (error) {
-      console.error('Error creating shop:', error);
-      alert('Failed to create shop. Please try again.');
-    }
   };
 
   const sidebarItems = [
@@ -394,31 +363,6 @@ const ChocolateShopDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Show setup prompt if no shop exists */}
-              {!dashboardData.hasShop && (
-                <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <Building2 className="h-12 w-12 text-amber-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">Create Your Shop</h3>
-                        <p className="text-gray-600 mt-1">
-                          You need to set up your shop before you can upload your menu and start accepting orders.
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => setShowShopSetup(true)}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600"
-                      >
-                        Create Shop Now
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
               {/* Setup Progress */}
               <Card>
                 <CardHeader>
@@ -487,13 +431,6 @@ const ChocolateShopDashboard: React.FC = () => {
           )}
         </div>
       </div>
-      
-      {/* Shop Setup Dialog */}
-      <ShopSetupDialog
-        isOpen={showShopSetup}
-        onClose={() => setShowShopSetup(false)}
-        onSubmit={handleShopSubmit}
-      />
     </div>
   );
 };

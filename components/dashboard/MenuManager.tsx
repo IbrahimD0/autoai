@@ -57,7 +57,10 @@ export default function MenuManager() {
     if (result.success && result.items) {
       setPendingMenuItems(result.items);
       setMenuItems(result.items);
-      setShowShopSetup(true);
+      // Only show shop setup if we don't have a shop yet
+      if (result.requiresShopSetup || !shopSlug) {
+        setShowShopSetup(true);
+      }
     } else {
       alert(`Error: ${result.error}`);
     }
@@ -94,6 +97,15 @@ export default function MenuManager() {
   };
 
   const clearMenu = async () => {
+    if (!shopSlug) {
+      // If no shop exists, just clear the local state
+      if (confirm('Are you sure you want to clear all menu items?')) {
+        setMenuItems([]);
+        setPendingMenuItems([]);
+      }
+      return;
+    }
+    
     if (confirm('Are you sure you want to clear all menu items?')) {
       try {
         const response = await fetch('/api/menu/extract', {

@@ -6,6 +6,8 @@ interface MenuUploadResult {
   message?: string;
   items?: any[];
   error?: string;
+  shopId?: string | null;
+  requiresShopSetup?: boolean;
 }
 
 export class MenuUploadClient {
