@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, 
   Menu, 
@@ -24,7 +24,8 @@ import {
   TrendingUp,
   TrendingDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,8 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import MenuManager from '@/components/dashboard/MenuManager';
 import AIAssistant from '@/components/dashboard/AIAssistant';
+import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 interface MetricCardProps {
   title: string;
@@ -58,11 +61,13 @@ interface SidebarItemProps {
   onClick?: () => void;
 }
 
-interface PopularItemProps {
-  name: string;
-  quantity: number;
-  revenue: string;
-  rank: number;
+interface DashboardData {
+  user: User | null;
+  userName: string;
+  hasShop: boolean;
+  hasMenu: boolean;
+  shopSlug?: string;
+  completedSteps: number;
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon, trend = 'neutral' }) => {
@@ -145,29 +150,83 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active = false, 
   );
 };
 
-const PopularItem: React.FC<PopularItemProps> = ({ name, quantity, revenue, rank }) => {
-  const getRankBadge = () => {
-    const colors = ['bg-yellow-100 text-yellow-800', 'bg-gray-100 text-gray-800', 'bg-orange-100 text-orange-800'];
-    return colors[rank - 1] || 'bg-muted text-muted-foreground';
-  };
-
-  return (
-    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-      <div className="flex items-center space-x-3">
-        <Badge className={getRankBadge()}>#{rank}</Badge>
-        <div>
-          <p className="font-medium text-gray-900">{name}</p>
-          <p className="text-sm text-gray-600">{quantity} sold</p>
-        </div>
-      </div>
-      <p className="font-semibold text-gray-900">{revenue}</p>
-    </div>
-  );
-};
-
 const ChocolateShopDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
+    user: null,
+    userName: '',
+    hasShop: false,
+    hasMenu: false,
+    completedSteps: 1
+  });
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const supabase = createClient();
+      
+      // Get user data
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get user profile
+        const { data: profile } = await supabase
+          .from('users')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        // Check if user has a shop
+        const { data: shop } = await supabase
+          .from('shops')
+          .select('slug')
+          .eq('user_id', user.id)
+          .single();
+        
+        // Check if user has menu items
+        let hasMenu = false;
+        if (shop) {
+          const { data: menuItems } = await supabase
+            .from('menu_items')
+            .select('id')
+            .eq('shop_id', shop.id)
+            .limit(1);
+          
+          hasMenu = menuItems && menuItems.length > 0;
+        }
+        
+        // Calculate completed steps
+        let completedSteps = 1; // Account created
+        if (shop) completedSteps++; // Shop created
+        if (hasMenu) completedSteps++; // Menu uploaded
+        
+        setDashboardData({
+          user,
+          userName: profile?.full_name || user.email?.split('@')[0] || 'there',
+          hasShop: !!shop,
+          hasMenu,
+          shopSlug: shop?.slug,
+          completedSteps
+        });
+      }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   const sidebarItems = [
     { icon: <Home className="h-5 w-5" />, label: 'Overview', key: 'overview' },
@@ -180,23 +239,45 @@ const ChocolateShopDashboard: React.FC = () => {
   ];
 
   const setupSteps = [
-    { step: 1, title: 'Account Created & Payment Confirmed', description: 'Your account is ready to go!', completed: true },
-    { step: 2, title: 'Upload Your Menu', description: 'Upload photos or type items', completed: false, current: true },
-    { step: 3, title: 'Customize AI Assistant', description: 'Test chat responses', completed: false },
-    { step: 4, title: 'Preview Your Website', description: 'Review and approve design', completed: false },
-    { step: 5, title: 'Go Live!', description: 'Publish website and start taking orders', completed: false },
-  ];
-
-  const popularItems = [
-    { name: 'Dark Chocolate Truffles', quantity: 45, revenue: '$675', rank: 1 },
-    { name: 'Milk Chocolate Hearts', quantity: 32, revenue: '$480', rank: 2 },
-    { name: 'Artisan Chocolate Box', quantity: 18, revenue: '$540', rank: 3 },
+    { 
+      step: 1, 
+      title: 'Account Created & Payment Confirmed', 
+      description: 'Your account is ready to go!', 
+      completed: true 
+    },
+    { 
+      step: 2, 
+      title: 'Upload Your Menu', 
+      description: 'Upload photos or type items', 
+      completed: dashboardData.hasMenu,
+      current: !dashboardData.hasMenu
+    },
+    { 
+      step: 3, 
+      title: 'Customize Shop Details', 
+      description: 'Add your business information', 
+      completed: dashboardData.hasShop && dashboardData.hasMenu,
+      current: dashboardData.hasMenu && !dashboardData.hasShop
+    },
+    { 
+      step: 4, 
+      title: 'Preview Your Website', 
+      description: 'Review and approve design', 
+      completed: false,
+      current: dashboardData.hasShop && dashboardData.hasMenu
+    },
+    { 
+      step: 5, 
+      title: 'Go Live!', 
+      description: 'Your shop is ready for customers', 
+      completed: false 
+    },
   ];
 
   const quickActions = [
     { 
       icon: <Upload className="h-5 w-5" />, 
-      label: 'Upload Menu Photos', 
+      label: dashboardData.hasMenu ? 'Update Menu' : 'Upload Menu Photos', 
       color: 'bg-blue-500 hover:bg-blue-600',
       onClick: () => setActiveTab('menu')
     },
@@ -204,15 +285,31 @@ const ChocolateShopDashboard: React.FC = () => {
       icon: <MessageCircle className="h-5 w-5" />, 
       label: 'Test AI Chat', 
       color: 'bg-green-500 hover:bg-green-600',
-      onClick: () => setActiveTab('ai')
+      onClick: () => setActiveTab('ai'),
+      disabled: !dashboardData.hasMenu
     },
     { 
       icon: <Eye className="h-5 w-5" />, 
       label: 'Preview My Website', 
       color: 'bg-purple-500 hover:bg-purple-600',
-      onClick: () => setActiveTab('website')
+      onClick: () => {
+        if (dashboardData.shopSlug) {
+          window.open(`/${dashboardData.shopSlug}`, '_blank');
+        }
+      },
+      disabled: !dashboardData.hasShop
     },
   ];
+
+  const progressPercentage = (dashboardData.completedSteps / 5) * 100;
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -221,7 +318,7 @@ const ChocolateShopDashboard: React.FC = () => {
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             {!sidebarCollapsed && (
-              <h1 className="text-xl font-bold text-amber-700">ChocolateAI</h1>
+              <h1 className="text-xl font-bold text-amber-700">AutoAI</h1>
             )}
             <Button
               variant="ghost"
@@ -260,84 +357,81 @@ const ChocolateShopDashboard: React.FC = () => {
               {/* Welcome Section */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Good morning, Sarah! Welcome to AutoAI</h1>
-                  <p className="text-gray-600 mt-1">Here's what's happening with your chocolate shop today</p>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {getGreeting()}, {dashboardData.userName}! Welcome to AutoAI
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    {dashboardData.hasShop 
+                      ? "Here's what's happening with your shop today"
+                      : "Let's get your shop set up and running"}
+                  </p>
                 </div>
               </div>
 
-          {/* Setup Progress */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-amber-600" />
-                <span>Setup Progress</span>
-              </CardTitle>
-              <Progress value={20} className="w-full" />
-              <p className="text-sm text-gray-600">1 of 5 steps completed</p>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {setupSteps.map((step) => (
-                <SetupStep key={step.step} {...step} />
-              ))}
-            </CardContent>
-          </Card>
+              {/* Setup Progress */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-amber-600" />
+                    <span>Setup Progress</span>
+                  </CardTitle>
+                  <Progress value={progressPercentage} className="w-full" />
+                  <p className="text-sm text-gray-600">
+                    {dashboardData.completedSteps} of 5 steps completed
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {setupSteps.map((step) => (
+                    <SetupStep key={step.step} {...step} />
+                  ))}
+                </CardContent>
+              </Card>
 
-          <div>
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Settings className="h-5 w-5 text-amber-600" />
-                  <span>Quick Actions</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {quickActions.map((action, index) => (
-                  <Button
-                    key={index}
-                    className={`w-full justify-start space-x-2 text-white ${action.color}`}
-                    onClick={action.onClick}
-                  >
-                    {action.icon}
-                    <span>{action.label}</span>
-                  </Button>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Customers */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Users className="h-5 w-5 text-amber-600" />
-                <span>New Customers Today</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: 'Emma Thompson', email: 'emma@email.com', order: 'Chocolate Truffle Box' },
-                  { name: 'Michael Chen', email: 'michael@email.com', order: 'Valentine\'s Special' },
-                  { name: 'Lisa Rodriguez', email: 'lisa@email.com', order: 'Custom Gift Box' },
-                ].map((customer, index) => (
-                  <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <Avatar>
-                      <AvatarFallback>{customer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{customer.name}</p>
-                      <p className="text-sm text-gray-600">{customer.email}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">{customer.order}</p>
-                      <Badge variant="secondary">New</Badge>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                {/* Quick Actions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Settings className="h-5 w-5 text-amber-600" />
+                      <span>Quick Actions</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {quickActions.map((action, index) => (
+                      <Button
+                        key={index}
+                        className={`w-full justify-start space-x-2 text-white ${action.color}`}
+                        onClick={action.onClick}
+                        disabled={action.disabled}
+                      >
+                        {action.icon}
+                        <span>{action.label}</span>
+                      </Button>
+                    ))}
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Coming Soon Section instead of fake customers */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="h-5 w-5 text-amber-600" />
+                    <span>Customer Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-2">No customers yet</p>
+                    <p className="text-sm text-gray-500">
+                      {dashboardData.hasShop 
+                        ? "Customer data will appear here once your shop starts receiving orders"
+                        : "Complete your shop setup to start accepting customers"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </>
           )}
         </div>
