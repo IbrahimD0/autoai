@@ -5,7 +5,7 @@ import { ChocolateChatClient, ChatMessage } from '@/utils/chat-client';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Bot, Send, AlertCircle, RefreshCw } from 'lucide-react';
+import { Bot, Send, AlertCircle, RefreshCw, Volume2, Pause } from 'lucide-react';
 
 export default function AIAssistant() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -13,6 +13,11 @@ export default function AIAssistant() {
   const [chatLoading, setChatLoading] = useState(false);
   const [chatAvailable, setChatAvailable] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [ttsLoading, setTtsLoading] = useState<string | null>(null);
+  const [currentAudio, setCurrentAudio] = useState<{ id: string; audio: HTMLAudioElement } | null>(null);
+
+  // TODO: Move this to environment variables
+  const INWORLD_API_KEY = 'b1lXVXAyYjdRTkxwVGlUWDJSTGtNYnBIWlVMdzZBZnc6MkxwZnZHWmFnMFdqVHJ4M0pFR1JJU1pIbEpBZnB3UlpLc0UzWjNNalYyTk96S1FTNnhIamNsbFM1OXBNVGhvaQ==';
 
   useEffect(() => {
     checkChatAvailability();
@@ -57,6 +62,80 @@ export default function AIAssistant() {
 
   const resetChat = () => {
     setChatMessages([ChocolateChatClient.getWelcomeMessage('Your Restaurant')]);
+  };
+
+  const playTextToSpeech = async (text: string, messageId: string) => {
+    // If clicking on the same audio that's playing, pause/resume it
+    if (currentAudio && currentAudio.id === messageId) {
+      if (currentAudio.audio.paused) {
+        currentAudio.audio.play();
+      } else {
+        currentAudio.audio.pause();
+      }
+      return;
+    }
+
+    // Stop any currently playing audio
+    if (currentAudio) {
+      currentAudio.audio.pause();
+      currentAudio.audio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+
+    setTtsLoading(messageId);
+    try {
+      const response = await fetch('https://api.inworld.ai/tts/v1/voice', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${INWORLD_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: text,
+          voiceId: 'Ashley',
+          modelId: 'inworld-tts-1'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('TTS request failed');
+      }
+
+      const result = await response.json();
+      const audioContent = atob(result.audioContent);
+      const audioArray = new Uint8Array(audioContent.length);
+      
+      for (let i = 0; i < audioContent.length; i++) {
+        audioArray[i] = audioContent.charCodeAt(i);
+      }
+      
+      const audioBlob = new Blob([audioArray], { type: 'audio/mp3' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      // Set up event listeners before playing
+      audio.addEventListener('ended', () => {
+        URL.revokeObjectURL(audioUrl);
+        setCurrentAudio(null);
+      });
+
+      audio.addEventListener('pause', () => {
+        if (currentAudio && currentAudio.id === messageId && audio.currentTime === audio.duration) {
+          setCurrentAudio(null);
+        }
+      });
+
+      // Store the audio instance
+      setCurrentAudio({ id: messageId, audio });
+      
+      await audio.play();
+      
+    } catch (error) {
+      console.error('Text-to-speech error:', error);
+      alert('Failed to play text-to-speech. Please try again.');
+    } finally {
+      setTtsLoading(null);
+    }
   };
 
   if (checking) {
@@ -140,6 +219,26 @@ export default function AIAssistant() {
                           : 'bg-white border border-gray-200 text-gray-900'
                       }`}>
                         <div className="whitespace-pre-wrap">{msg.content}</div>
+                        {msg.role === 'assistant' && (
+                          <div className="mt-2 flex justify-end">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => playTextToSpeech(msg.content, `msg-${i}`)}
+                              disabled={ttsLoading === `msg-${i}`}
+                              className="!text-gray-600 hover:!text-gray-800 p-1"
+                              title="Listen to this message"
+                            >
+                              {ttsLoading === `msg-${i}` ? (
+                                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                              ) : currentAudio && currentAudio.id === `msg-${i}` && !currentAudio.audio.paused ? (
+                                <Pause className="h-4 w-4" />
+                              ) : (
+                                <Volume2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <p className={`text-xs mt-1 ${
                         msg.role === 'user' ? 'text-right' : 'text-left'
@@ -192,15 +291,44 @@ export default function AIAssistant() {
                     "What's good for someone with allergies?",
                     "I'd like to place an order"
                   ].map((question, i) => (
-                    <Button
-                      key={i}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setChatInput(question)}
-                      className="!text-black"
-                    >
-                      {question}
-                    </Button>
+                    question === "I'd like to place an order" ? (
+                      <div key={i} className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setChatInput(question)}
+                          className="!text-black"
+                        >
+                          {question}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => playTextToSpeech(question, 'sample-order')}
+                          disabled={ttsLoading === 'sample-order'}
+                          className="!text-black px-2"
+                          title="Text to Speech"
+                        >
+                          {ttsLoading === 'sample-order' ? (
+                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                          ) : currentAudio && currentAudio.id === 'sample-order' && !currentAudio.audio.paused ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Volume2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        key={i}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setChatInput(question)}
+                        className="!text-black"
+                      >
+                        {question}
+                      </Button>
+                    )
                   ))}
                 </div>
               </div>

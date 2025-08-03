@@ -8,7 +8,13 @@ Add the following to your `.env.local` file:
 
 ```
 OPENAI_KEY=your_openai_api_key_here
+NEXT_PUBLIC_INWORLD_API_KEY=your_inworld_api_key_here
 ```
+
+**Important Notes:**
+1. The `OPENAI_KEY` is **required** for the chat functionality to work. Without it, you'll get a 500 error when trying to send messages.
+2. The Inworld API key is currently hardcoded in the component but should be moved to environment variables for production use.
+3. After adding these keys, restart your development server for the changes to take effect.
 
 ## Features
 
@@ -23,6 +29,13 @@ OPENAI_KEY=your_openai_api_key_here
 - Answers customer questions about menu items
 - Provides recommendations based on dietary restrictions
 - Can process orders (order IDs generated but not persisted)
+
+### 3. Text-to-Speech (TTS)
+- Listen to AI assistant responses with a single click
+- Speaker button appears on each AI message in the chat
+- Uses Inworld TTS API with high-quality voice synthesis
+- Supports simultaneous playback of different messages
+- Loading state indicator while audio is being generated
 
 ## Usage in Dashboard
 
@@ -88,3 +101,16 @@ components/dashboard/
 - Each user's menu is stored separately by user ID
 - The AI assistant is context-aware of the uploaded menu items
 - No database required for basic functionality
+
+## Troubleshooting
+
+### Chat returns 500 error
+- **Cause**: Missing `OPENAI_KEY` in your `.env.local` file
+- **Solution**: Add your OpenAI API key to `.env.local` and restart the development server
+
+### TTS not working
+- **Cause**: Invalid or missing Inworld API key
+- **Solution**: Ensure the Inworld API key is correctly set (currently hardcoded in `AIAssistant.tsx`)
+
+### Audio plays simultaneously
+- This has been fixed! Audio now pauses when you click another TTS button or click the same button to pause/resume.
