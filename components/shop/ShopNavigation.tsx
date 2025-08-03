@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Coffee, Menu, X } from 'lucide-react'
+import { Coffee, Menu, X, ShoppingCart } from 'lucide-react'
 
 interface BusinessInfo {
   name: string
@@ -19,7 +19,15 @@ interface BusinessInfo {
   }
 }
 
-export default function ShopNavigation({ businessInfo }: { businessInfo: BusinessInfo }) {
+export default function ShopNavigation({
+  businessInfo,
+  orderCount,
+  onToggleOrderPanel
+}: {
+  businessInfo: BusinessInfo
+  orderCount: number
+  onToggleOrderPanel: () => void
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
@@ -32,10 +40,27 @@ export default function ShopNavigation({ businessInfo }: { businessInfo: Busines
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Home</a>
             <a href="#menu" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Menu</a>
             <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Contact</a>
+            
+            {/* Orders Button */}
+            <button
+              onClick={onToggleOrderPanel}
+              className="relative px-3 py-2 bg-white border border-amber-600 text-amber-600 rounded-full hover:bg-amber-600 hover:text-white transition-colors"
+            >
+              <div className="flex items-center gap-1">
+                <ShoppingCart className="w-4 h-4" />
+                Orders
+              </div>
+              {orderCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-amber-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                  {orderCount}
+                </span>
+              )}
+            </button>
+
             {businessInfo.phone && (
               <a href={`tel:${businessInfo.phone}`} className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full hover:from-amber-600 hover:to-orange-600 transition-colors">
                 Call Now
@@ -64,6 +89,13 @@ export default function ShopNavigation({ businessInfo }: { businessInfo: Busines
               <a href="#home" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Home</a>
               <a href="#menu" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Menu</a>
               <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors">Contact</a>
+              <button
+                onClick={onToggleOrderPanel}
+                className="flex items-center gap-2 text-amber-600 border border-amber-600 px-3 py-2 rounded-full hover:bg-amber-600 hover:text-white transition-colors w-fit"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Orders {orderCount > 0 && `(${orderCount})`}
+              </button>
               {businessInfo.phone && (
                 <a href={`tel:${businessInfo.phone}`} className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full hover:from-amber-600 hover:to-orange-600 transition-colors w-fit">
                   Call Now

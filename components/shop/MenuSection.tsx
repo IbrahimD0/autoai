@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Heart } from 'lucide-react'
+import { Search, Heart, Plus } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 interface MenuItem {
@@ -17,7 +17,7 @@ interface MenuCategory {
   items: MenuItem[]
 }
 
-export default function MenuSection({ menuItems }: { menuItems: MenuCategory[] }) {
+export default function MenuSection({ menuItems, onAddItem }: { menuItems: MenuCategory[], onAddItem: (item: MenuItem) => void }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
 
@@ -117,8 +117,12 @@ export default function MenuSection({ menuItems }: { menuItems: MenuCategory[] }
                   <span className="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full">
                     {item.category}
                   </span>
-                  <button className="text-amber-600 hover:text-amber-700 transition-colors">
-                    <Heart className="w-5 h-5" />
+                  <button
+                    onClick={() => onAddItem(item)}
+                    className="text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add
                   </button>
                 </div>
               </motion.div>
