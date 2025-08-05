@@ -3,6 +3,10 @@ import { updateSession } from '@/utils/supabase/middleware';
 import { createClient } from '@/utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  // Clone the request headers and add pathname
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+
   // Protected routes
   const protectedPaths = ['/dashboard', '/account'];
   const isProtectedPath = protectedPaths.some(path => 
@@ -20,7 +24,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return await updateSession(request);
+  // Pass the modified headers to updateSession
+  const response = await updateSession(request);
+  
+  // Apply the pathname header to the response
+  response.headers.set('x-pathname', request.nextUrl.pathname);
+  
+  return response;
 }
 
 export const config = {

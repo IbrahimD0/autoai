@@ -6,6 +6,7 @@ import { updateEmail } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Mail } from 'lucide-react';
 
 export default function EmailForm({
   userEmail
@@ -28,37 +29,49 @@ export default function EmailForm({
   };
 
   return (
-    <Card
-      title="Your Email"
-      description="Please enter the email address you want to use to login."
-      footer={
-        <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
-          <p className="pb-4 sm:pb-0">
-            We will email you to verify the change.
-          </p>
-          <Button
-            variant="slim"
-            type="submit"
-            form="emailForm"
-            loading={isSubmitting}
-          >
-            Update Email
-          </Button>
+    <div className="bg-white rounded-xl shadow-sm border border-amber-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+            <Mail className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Email Address</h3>
+            <p className="text-sm text-gray-600">
+              Used for login and important notifications
+            </p>
+          </div>
         </div>
-      }
-    >
-      <div className="mt-8 mb-4 text-xl font-semibold">
-        <form id="emailForm" onSubmit={(e) => handleSubmit(e)}>
-          <input
-            type="text"
-            name="newEmail"
-            className="w-1/2 p-3 rounded-md bg-zinc-800"
-            defaultValue={userEmail ?? ''}
-            placeholder="Your email"
-            maxLength={64}
-          />
+
+        <form id="emailForm" onSubmit={(e) => handleSubmit(e)} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              name="newEmail"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 text-gray-900 placeholder-gray-400"
+              defaultValue={userEmail ?? ''}
+              placeholder="Enter your email address"
+              maxLength={64}
+            />
+            <p className="mt-2 text-sm text-gray-500">
+              We'll send a verification email to confirm changes
+            </p>
+          </div>
         </form>
       </div>
-    </Card>
+
+      <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            form="emailForm"
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+          >
+            {isSubmitting ? 'Updating...' : 'Update Email'}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

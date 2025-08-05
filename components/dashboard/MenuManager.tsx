@@ -5,7 +5,7 @@ import { MenuUploadClient } from '@/utils/menu-upload-client';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Upload, Trash2, Edit, AlertCircle, ExternalLink } from 'lucide-react';
+import { Upload, Trash2, Edit, AlertCircle, ExternalLink, Loader2, CheckCircle, FileImage, Sparkles } from 'lucide-react';
 import ShopSetupDialog from './ShopSetupDialog';
 import { useRouter } from 'next/navigation';
 
@@ -16,6 +16,11 @@ export default function MenuManager() {
   const [showShopSetup, setShowShopSetup] = useState(false);
   const [shopSlug, setShopSlug] = useState<string | null>(null);
   const [pendingMenuItems, setPendingMenuItems] = useState<any[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{
+    stage: 'idle' | 'uploading' | 'processing' | 'extracting' | 'complete' | 'error';
+    message: string;
+    progress: number;
+  }>({ stage: 'idle', message: '', progress: 0 });
   const router = useRouter();
 
   useEffect(() => {
@@ -51,18 +56,49 @@ export default function MenuManager() {
     if (!file) return;
 
     setUploading(true);
-    const result = await MenuUploadClient.uploadMenu(file, false);
-    setUploading(false);
+    setUploadProgress({ stage: 'uploading', message: 'Uploading image...', progress: 20 });
 
-    if (result.success && result.items) {
-      setPendingMenuItems(result.items);
-      setMenuItems(result.items);
-      // Only show shop setup if we don't have a shop yet
-      if (result.requiresShopSetup || !shopSlug) {
-        setShowShopSetup(true);
+    // Simulate progress stages
+    setTimeout(() => {
+      setUploadProgress({ stage: 'processing', message: 'Enhancing image quality...', progress: 40 });
+    }, 500);
+
+    setTimeout(() => {
+      setUploadProgress({ stage: 'extracting', message: 'AI is reading menu items, prices, and descriptions...', progress: 60 });
+    }, 1500);
+
+    try {
+      const result = await MenuUploadClient.uploadMenu(file, false);
+      
+      if (result.success && result.items) {
+        setUploadProgress({ stage: 'complete', message: `Found ${result.items.length} menu items!`, progress: 100 });
+        setPendingMenuItems(result.items);
+        setMenuItems(result.items);
+        
+        // Only show shop setup if we don't have a shop yet
+        if (result.requiresShopSetup || !shopSlug) {
+          setTimeout(() => {
+            setShowShopSetup(true);
+            setUploadProgress({ stage: 'idle', message: '', progress: 0 });
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            setUploadProgress({ stage: 'idle', message: '', progress: 0 });
+          }, 2000);
+        }
+      } else {
+        setUploadProgress({ stage: 'error', message: result.error || 'Failed to extract menu items', progress: 0 });
+        setTimeout(() => {
+          setUploadProgress({ stage: 'idle', message: '', progress: 0 });
+        }, 3000);
       }
-    } else {
-      alert(`Error: ${result.error}`);
+    } catch (error) {
+      setUploadProgress({ stage: 'error', message: 'An error occurred while processing your menu', progress: 0 });
+      setTimeout(() => {
+        setUploadProgress({ stage: 'idle', message: '', progress: 0 });
+      }, 3000);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -180,9 +216,50 @@ export default function MenuManager() {
               </div>
             </div>
             
-            {uploading && (
-              <div className="text-center text-sm text-gray-500">
-                Extracting menu items from image...
+            {uploading && uploadProgress.stage !== 'idle' && (
+              <div className="space-y-4">
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  {uploadProgress.stage === 'uploading' && (
+                    <FileImage className="h-10 w-10 text-amber-500 animate-pulse" />
+                  )}
+                  {uploadProgress.stage === 'processing' && (
+                    <Loader2 className="h-10 w-10 text-amber-500 animate-spin" />
+                  )}
+                  {uploadProgress.stage === 'extracting' && (
+                    <Sparkles className="h-10 w-10 text-amber-500 animate-pulse" />
+                  )}
+                  {uploadProgress.stage === 'complete' && (
+                    <CheckCircle className="h-10 w-10 text-green-500" />
+                  )}
+                  {uploadProgress.stage === 'error' && (
+                    <AlertCircle className="h-10 w-10 text-red-500" />
+                  )}
+                  
+                  <p className={`text-sm font-medium ${
+                    uploadProgress.stage === 'complete' ? 'text-green-600' : 
+                    uploadProgress.stage === 'error' ? 'text-red-600' : 
+                    'text-gray-700'
+                  }`}>
+                    {uploadProgress.message}
+                  </p>
+                  
+                  {uploadProgress.stage === 'extracting' && (
+                    <p className="text-xs text-gray-500 animate-pulse">
+                      This usually takes 5-15 seconds depending on menu complexity
+                    </p>
+                  )}
+                  
+                  {uploadProgress.stage !== 'complete' && uploadProgress.stage !== 'error' && (
+                    <div className="w-full max-w-xs">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 ease-out"
+                          style={{ width: `${uploadProgress.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

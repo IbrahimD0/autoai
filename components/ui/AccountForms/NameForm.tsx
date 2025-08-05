@@ -6,6 +6,7 @@ import { updateName } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { User } from 'lucide-react';
 
 export default function NameForm({ userName }: { userName: string }) {
   const router = useRouter();
@@ -24,35 +25,47 @@ export default function NameForm({ userName }: { userName: string }) {
   };
 
   return (
-    <Card
-      title="Your Name"
-      description="Please enter your full name, or a display name you are comfortable with."
-      footer={
-        <div className="flex flex-col items-start justify-between sm:flex-row sm:items-center">
-          <p className="pb-4 sm:pb-0">64 characters maximum</p>
-          <Button
-            variant="slim"
-            type="submit"
-            form="nameForm"
-            loading={isSubmitting}
-          >
-            Update Name
-          </Button>
+    <div className="bg-white rounded-xl shadow-sm border border-amber-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+            <User className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Display Name</h3>
+            <p className="text-sm text-gray-600">
+              Your name as it appears across the platform
+            </p>
+          </div>
         </div>
-      }
-    >
-      <div className="mt-8 mb-4 text-xl font-semibold">
-        <form id="nameForm" onSubmit={(e) => handleSubmit(e)}>
-          <input
-            type="text"
-            name="fullName"
-            className="w-1/2 p-3 rounded-md bg-zinc-800"
-            defaultValue={userName}
-            placeholder="Your name"
-            maxLength={64}
-          />
+
+        <form id="nameForm" onSubmit={(e) => handleSubmit(e)} className="space-y-4">
+          <div>
+            <input
+              type="text"
+              name="fullName"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 text-gray-900 placeholder-gray-400"
+              defaultValue={userName}
+              placeholder="Enter your full name"
+              maxLength={64}
+            />
+            <p className="mt-2 text-sm text-gray-500">Maximum 64 characters</p>
+          </div>
         </form>
       </div>
-    </Card>
+
+      <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            form="nameForm"
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+          >
+            {isSubmitting ? 'Updating...' : 'Update Name'}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

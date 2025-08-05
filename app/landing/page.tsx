@@ -36,25 +36,14 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 overflow-hidden">
       
-      {/* Sign In Button */}
-      <div className="absolute top-6 right-6 z-20">
-        <a href="/signin">
-          <Button 
-            variant="outline"
-            className="border-2 border-gray-400 text-gray-700 bg-white hover:bg-gray-50 px-6 py-2"
-          >
-            Sign In
-          </Button>
-        </a>
-      </div>
-      
+     
       {/* Background decorative elements */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gray-200/30 rounded-full blur-xl" />
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-gray-200/30 rounded-full blur-xl" />
-        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-gray-300/20 rounded-full blur-lg" />
+        <div className="absolute top-20 left-10 w-32 h-32 bg-amber-200/30 rounded-full blur-xl" />
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-orange-200/30 rounded-full blur-xl" />
+        <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-amber-300/20 rounded-full blur-lg" />
       </div>
 
       <div className="relative z-10 container mx-auto px-6 py-20">
@@ -64,7 +53,7 @@ const HeroSection = () => {
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.8 }}
           >
-            <Badge className="mb-6 bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200">
+            <Badge className="mb-6 bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200">
               <Sparkles className="w-4 h-4 mr-2" />
               Used by 25+ local shops already
             </Badge>
@@ -76,7 +65,7 @@ const HeroSection = () => {
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 30 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="bg-gradient-to-r from-gray-800 via-gray-600 to-gray-700 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">
               AutoAI:
             </span>
             <br />
@@ -84,7 +73,7 @@ const HeroSection = () => {
             <span className="relative">
               Automated
               <motion.div
-                className="absolute -bottom-2 left-0 right-0 h-3 bg-gray-200/60 rounded-full"
+                className="absolute -bottom-2 left-0 right-0 h-3 bg-amber-400/60 rounded-full"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: isVisible ? 1 : 0 }}
                 transition={{ duration: 1, delay: 1 }}
@@ -94,13 +83,13 @@ const HeroSection = () => {
           </motion.h1>
 
           <motion.p
-            className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             AI Chat + Professional Website + Smart Ordering - All for{' '}
-            <span className="font-bold text-gray-600">$20/month</span>
+            <span className="font-bold text-amber-600">$20/month</span>
           </motion.p>
 
           <motion.div
@@ -112,7 +101,7 @@ const HeroSection = () => {
             <a href="/signin/signup">
               <Button 
                 size="lg" 
-                className="bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -203,7 +192,7 @@ const FeaturesSection = () => {
               viewport={{ once: true }}
               className="group"
             >
-              <Card className="p-6 h-full border-2 border-gray-100 hover:border-orange-200 transition-all duration-300 hover:shadow-lg">
+              <Card className="p-6 h-full border-2 border-amber-100 hover:border-orange-300 transition-all duration-300 hover:shadow-lg">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
@@ -242,7 +231,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-50">
+    <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -262,7 +251,7 @@ const TestimonialsSection = () => {
               transition={{ duration: 0.6, delay: index * 0.2 }}
               viewport={{ once: true }}
             >
-              <Card className="p-8 bg-white/95 backdrop-blur border-2 border-orange-100 hover:border-orange-200 transition-all duration-300 hover:shadow-lg">
+              <Card className="p-8 bg-white/95 backdrop-blur border-2 border-amber-100 hover:border-amber-200 transition-all duration-300 hover:shadow-lg">
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -307,9 +296,9 @@ const PricingSection = () => {
         </div>
 
         <div className="max-w-lg mx-auto">
-          <Card className="p-8 border-4 border-gray-200 bg-gradient-to-br from-gray-50 to-gray-50 relative overflow-hidden">
+          <Card className="p-8 border-4 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 relative overflow-hidden">
             <div className="absolute top-4 right-4">
-              <Badge className="bg-gray-500 text-white">
+              <Badge className="bg-amber-600 text-white">
                 Most Popular
               </Badge>
             </div>
@@ -317,7 +306,7 @@ const PricingSection = () => {
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Complete AutoAI Package</h3>
               <div className="flex items-baseline justify-center mb-4">
-                <span className="text-5xl font-bold text-gray-600">$20</span>
+                <span className="text-5xl font-bold text-gray-900">$20</span>
                 <span className="text-xl text-gray-600 ml-2">/month</span>
               </div>
               <p className="text-gray-600">14-day free trial • Cancel anytime</p>
@@ -341,7 +330,7 @@ const PricingSection = () => {
               ))}
             </div>
 
-            <Button className="w-full bg-gradient-to-r from-gray-500 to-gray-500 hover:from-gray-600 hover:to-gray-600 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
               Start Your Free Trial
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -359,7 +348,7 @@ const PricingSection = () => {
 // CTA Section Component
 const CTASection = () => {
   return (
-    <section className="py-20 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl" />
         <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-xl" />
@@ -377,7 +366,7 @@ const CTASection = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
               size="lg" 
-              className="bg-white text-gray-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-white text-amber-700 hover:bg-amber-50 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             >
               Start Free Trial - No Credit Card
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -385,7 +374,7 @@ const CTASection = () => {
             <Button 
               variant="outline" 
               size="lg"
-              className="border-2 border-white/90 text-white bg-white/10 backdrop-blur hover:bg-white hover:text-gray-600 px-8 py-4 text-lg rounded-xl transition-all duration-300"
+              className="border-2 border-white/90 text-white bg-white/10 backdrop-blur hover:bg-white hover:text-amber-600 px-8 py-4 text-lg rounded-xl transition-all duration-300"
             >
               Schedule Demo
             </Button>

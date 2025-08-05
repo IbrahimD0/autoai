@@ -62,5 +62,18 @@ SUPABASE_MCP_SETUP.md
 # local storage
 .menu-data/
 
+# Documentation folder
+doc/
+/doc
+
+# AI Integration documentation
+AI_INTEGRATION_README.md
+ai_integration_readme
+
+# Converter files
+converter.txt
+convert.txt
 
 
+.cursor/
+.claude

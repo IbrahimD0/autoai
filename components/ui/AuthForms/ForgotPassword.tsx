@@ -1,11 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import Link from 'next/link';
 import { requestPasswordUpdate } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 
 // Define prop type with allowEmail boolean
 interface ForgotPasswordProps {
@@ -29,54 +31,55 @@ export default function ForgotPassword({
   };
 
   return (
-    <div className="my-8">
+    <div className="space-y-6">
       <form
         noValidate={true}
-        className="mb-4"
         onSubmit={(e) => handleSubmit(e)}
       >
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              name="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              className="w-full p-3 rounded-md bg-zinc-800"
-            />
-          </div>
+        <div className="space-y-5">
+          <Input
+            label="Email Address"
+            id="email"
+            name="email"
+            type="email"
+            placeholder="name@example.com"
+            autoCapitalize="none"
+            autoComplete="email"
+            autoCorrect="off"
+            className="text-gray-900"
+            helperText="We'll send you instructions to reset your password"
+            required
+          />
+          
           <Button
-            variant="slim"
             type="submit"
-            className="mt-1"
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
             loading={isSubmitting}
             disabled={disableButton}
           >
-            Send Email
+            Send Reset Instructions
           </Button>
         </div>
       </form>
-      <p>
-        <Link href="/signin/password_signin" className="font-light text-sm">
-          Sign in with email and password
+      
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-white text-gray-500">Remember your password?</span>
+        </div>
+      </div>
+      
+      <div className="text-center">
+        <Link 
+          href="/signin/password_signin" 
+          className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700 font-medium transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to sign in
         </Link>
-      </p>
-      {allowEmail && (
-        <p>
-          <Link href="/signin/email_signin" className="font-light text-sm">
-            Sign in via magic link
-          </Link>
-        </p>
-      )}
-      <p>
-        <Link href="/signin/signup" className="font-light text-sm">
-          Don't have an account? Sign up
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }
